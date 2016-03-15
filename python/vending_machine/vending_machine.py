@@ -4,7 +4,7 @@ class VendingMachine:
         self.coin_return = 0
         self.products = {"cola": 100, "chips": 50, "candy": 65}
         # self.products = {"cola": {'price': 100, 'quantity': 5}, "chips": 50, "candy": 65}
-        self.display_message = "INSERT COINS"
+        self.display_message = ""
 
     def accept_coins(self, coin_input):
         valid_coins = [5, 10, 25]
