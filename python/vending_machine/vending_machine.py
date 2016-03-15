@@ -25,6 +25,7 @@ class VendingMachine:
             return product
         elif self.current_amount > self.products[product]:
             self.coin_return += self.current_amount - self.products[product]
+            return product
         elif self.current_amount < self.products[product]:
             self.display_message = "PRICE: %d" % self.products[product]
 

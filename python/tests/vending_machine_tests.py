@@ -26,7 +26,7 @@ class TestVendingMachine(unittest.TestCase):
     def test_vending_machine_updates_display_when_valid_coin_accepted(self):
         """should update display when received valid coin"""
         self.vending_machine.accept_coins(25)
-        print self.vending_machine.display()
+
         self.assertEqual(self.vending_machine.display(), "Current Amount: %d" % self.vending_machine.current_amount)
 
     def test_vending_machine_displays_insert_coin_when_no_coins_inserted(self):
@@ -57,14 +57,13 @@ class TestVendingMachine(unittest.TestCase):
 
         self.assertEqual(self.vending_machine.display(), "INSERT COINS")
 
-    def test_money_is_returned_if_money_left_over(self):
+    def test_product_is_dispensed_and_money_is_returned_if_money_left_over(self):
         self.vending_machine.accept_coins(25)
         self.vending_machine.accept_coins(25)
         self.vending_machine.accept_coins(25)
         self.vending_machine.accept_coins(25)
-
-        self.vending_machine.select_product("chips")
-
+        
+        self.assertEqual(self.vending_machine.select_product("chips"), "chips")
         self.assertEqual(self.vending_machine.coin_return, 50)
 
     def test_return_coins(self):
