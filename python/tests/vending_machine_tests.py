@@ -118,6 +118,11 @@ class TestVendingMachine(unittest.TestCase):
 
         self.assertEqual(self.vending_machine.display(), "EXACT CHANGE ONLY")
 
+    def test_machine_should_update_inventory_of_coins(self):
+        """update coin quantity"""
+        self.vending_machine.accept_coins(25)
+
+        self.assertEqual(self.vending_machine.change['quarters']['quantity'], 6)
 
 if __name__ == '__main__':
     unittest.main()

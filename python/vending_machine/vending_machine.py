@@ -2,21 +2,25 @@ class VendingMachine:
     def __init__(self):
         self.amount = 0
         self.coin_return = 0
+        self.display_message = ""
         self.products = {"cola": {'price': 100, 'quantity': 5},
                          "chips": {'price': 50, 'quantity': 10},
                          "candy": {'price': 65, 'quantity': 10}}
-        self.display_message = ""
-        self.change = {"quarters": 5, "dimes": 10, "nickels": 10}
+        self.change = {"quarters": {'value': 25, 'quantity': 5},
+                       "dimes": {'value': 10, 'quantity': 10},
+                       "nickels": {'value': 5, 'quantity': 10}}
 
     def accept_coins(self, coin_input):
-        valid_coins = [5, 10, 25]
-
         if coin_input == 1:
             self.coin_return += coin_input
+        else:
+            converter = {25: "quarters", 10: "dimes", 5: "nickels"}
+            coin = converter[coin_input]
+            coin_value = self.change[coin]['value']
 
-        for coin in valid_coins:
-            if coin_input == coin:
+            if coin_input == coin_value:
                 self.amount += coin_input
+                self.change[coin]['quantity'] += 1
 
     def select_product(self, product):
         price = self.products[product]['price']
@@ -30,7 +34,7 @@ class VendingMachine:
             elif self.amount > price:
                 self.coin_return += self.amount - price
                 self.products[product]['quantity'] -= 1
-            elif self.amount < price:
+            else:
                 self.display_message = "PRICE: %d" % price
                 return
             return product
@@ -42,7 +46,8 @@ class VendingMachine:
         self.amount = 0
 
     def return_coins(self):
-        return self.coin_return
+        if self.make_change():
+            return self.coin_return
 
     def current_amount(self):
         return self.amount
