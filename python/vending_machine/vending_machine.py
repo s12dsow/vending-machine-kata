@@ -6,6 +6,7 @@ class VendingMachine:
                          "chips": {'price': 50, 'quantity': 10},
                          "candy": {'price': 65, 'quantity': 10}}
         self.display_message = ""
+        self.change = {"quarters": 5, "dimes": 10, "nickels": 10}
 
     def accept_coins(self, coin_input):
         valid_coins = [5, 10, 25]
@@ -46,10 +47,16 @@ class VendingMachine:
     def current_amount(self):
         return self.amount
 
+    def make_change(self):
+        return self.change['dimes'] > 1 and self.change['nickels'] > 1 \
+               or self.change['nickels'] > 3
+
     def display(self):
         if self.display_message:
             msg, self.display_message = self.display_message, ""
             return msg
+        elif not self.make_change():
+            self.display_message = "EXACT CHANGE ONLY"
         elif self.amount:
             self.display_message = "Current Amount: %d" % self.amount
         else:

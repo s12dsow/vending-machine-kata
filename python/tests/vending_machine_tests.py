@@ -104,5 +104,20 @@ class TestVendingMachine(unittest.TestCase):
         self.assertEqual(self.vending_machine.display(), "SOLD OUT")
         self.assertEqual(self.vending_machine.display(), "Current Amount: %d" % self.vending_machine.current_amount())
 
+    def test_machine_displays_exact_change_only_when_not_able_to_make_change(self):
+        """vending machine displays exact change if not able to make change"""
+
+        self.vending_machine.change['nickels'] = 1
+
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+
+        self.vending_machine.select_product("candy")
+        self.vending_machine.make_change()
+
+        self.assertEqual(self.vending_machine.display(), "EXACT CHANGE ONLY")
+
+
 if __name__ == '__main__':
     unittest.main()
