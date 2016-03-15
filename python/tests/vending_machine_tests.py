@@ -42,7 +42,9 @@ class TestVendingMachine(unittest.TestCase):
         self.assertEqual(self.vending_machine.display(), "INSERT COINS")
 
     def test_vending_machine_has_stock(self):
-        self.assertEqual(self.vending_machine.products, {"cola": 100, "chips": 50, "candy": 65})
+        self.assertEqual(self.vending_machine.products, {"cola": {'price': 100, 'quantity': 5},
+                                                         "chips": {'price': 50, 'quantity': 10},
+                                                         "candy": {'price': 65, 'quantity': 10}})
 
     def test_product_is_dispensed_if_enough_money_is_received(self):
         """should dispense product if sufficient funds have been received"""
@@ -82,6 +84,25 @@ class TestVendingMachine(unittest.TestCase):
 
         self.assertEqual(self.vending_machine.return_coins(), 25)
         self.assertEqual(self.vending_machine.display(), "INSERT COINS")
+
+    def test_machine_displays_sold_out_if_item_is_out_of_stock(self):
+        """should display sold out if item is out of stock. Will display money left over"""
+        self.vending_machine.products['cola']['quantity'] = 1
+
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+        self.vending_machine.accept_coins(25)
+
+        self.vending_machine.select_product("cola")
+        self.vending_machine.select_product("cola")
+
+        self.assertEqual(self.vending_machine.display(), "SOLD OUT")
+        self.assertEqual(self.vending_machine.display(), "Current Amount: %d" % self.vending_machine.current_amount())
 
 if __name__ == '__main__':
     unittest.main()

@@ -2,8 +2,9 @@ class VendingMachine:
     def __init__(self):
         self.amount = 0
         self.coin_return = 0
-        self.products = {"cola": 100, "chips": 50, "candy": 65}
-        # self.products = {"cola": {'price': 100, 'quantity': 5}, "chips": 50, "candy": 65}
+        self.products = {"cola": {'price': 100, 'quantity': 5},
+                         "chips": {'price': 50, 'quantity': 10},
+                         "candy": {'price': 65, 'quantity': 10}}
         self.display_message = ""
 
     def accept_coins(self, coin_input):
@@ -17,17 +18,23 @@ class VendingMachine:
                 self.amount += coin_input
 
     def select_product(self, product):
-        price = self.products[product]
+        price = self.products[product]['price']
+        quantity = self.products[product]['quantity']
 
-        if self.amount == price:
-            self.amount -= price
-            self.display_message = "THANK YOU"
-        elif self.amount > price:
-            self.coin_return += self.amount - price
-        elif self.amount < price:
-            self.display_message = "PRICE: %d" % price
-            return
-        return product
+        if quantity:
+            if self.amount == price:
+                self.amount -= price
+                self.products[product]['quantity'] -= 1
+                self.display_message = "THANK YOU"
+            elif self.amount > price:
+                self.coin_return += self.amount - price
+                self.products[product]['quantity'] -= 1
+            elif self.amount < price:
+                self.display_message = "PRICE: %d" % price
+                return
+            return product
+        else:
+            self.display_message = "SOLD OUT"
 
     def refund_coins(self):
         self.coin_return += self.amount
