@@ -48,11 +48,8 @@ class TestVendingMachine(unittest.TestCase):
 
     def test_product_is_dispensed_if_enough_money_is_received(self):
         """should dispense product if sufficient funds have been received"""
-
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
+        for i in range(4):
+            self.vending_machine.accept_coins(25)
 
         self.assertEqual(self.vending_machine.select_product("cola"), "cola")
         self.assertEqual(self.vending_machine.display(), "THANK YOU")
@@ -69,10 +66,8 @@ class TestVendingMachine(unittest.TestCase):
 
     def test_product_is_dispensed_and_money_is_returned_if_money_left_over(self):
         """should dispense products and give back any extra money"""
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
+        for i in range(4):
+            self.vending_machine.accept_coins(25)
 
         self.assertEqual(self.vending_machine.select_product("chips"), "chips")
         self.assertEqual(self.vending_machine.return_coins(), 50)
@@ -89,29 +84,21 @@ class TestVendingMachine(unittest.TestCase):
         """should display sold out if item is out of stock. Will display money left over"""
         self.vending_machine.products['cola']['quantity'] = 1
 
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
+        for i in range(8):
+            self.vending_machine.accept_coins(25)
 
-        self.vending_machine.select_product("cola")
-        self.vending_machine.select_product("cola")
+        for i in range(2):
+            self.vending_machine.select_product("cola")
 
         self.assertEqual(self.vending_machine.display(), "SOLD OUT")
         self.assertEqual(self.vending_machine.display(), "Current Amount: %d" % self.vending_machine.current_amount())
 
     def test_machine_displays_exact_change_only_when_not_able_to_make_change(self):
         """vending machine displays exact change if not able to make change"""
-
         self.vending_machine.change['nickels'] = 1
 
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
-        self.vending_machine.accept_coins(25)
+        for i in range(3):
+            self.vending_machine.accept_coins(25)
 
         self.vending_machine.select_product("candy")
         self.vending_machine.make_change()
