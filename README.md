@@ -4,10 +4,6 @@ Vending Machine Kata
 
 ####To run tests in Java project:
 
-######Install gradle: 
-
-    brew install gradle
-
 ######Go to project: 
 
     cd path/to/project
