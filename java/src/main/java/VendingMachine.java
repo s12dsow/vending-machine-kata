@@ -5,7 +5,9 @@ public class VendingMachine {
     Integer currentAmount;
     Integer returnCoins;
     String displayMessage;
-    HashMap<String, ArrayList<Integer>> products;
+    HashMap<String,Integer> products;
+    HashMap<String, Integer> productsQuantity;
+    HashMap<Integer, Integer> coinQuantity;
 
     public VendingMachine(){
         currentAmount = 0;
@@ -13,23 +15,31 @@ public class VendingMachine {
         displayMessage = "";
 
         products = new HashMap<>();
+        products.put("Cola", 100);
+        products.put("Chips", 50);
+        products.put("Candy", 65);
 
+        productsQuantity = new HashMap<>();
+        productsQuantity.put("Cola", 5);
+        productsQuantity.put("Chips", 10);
+        productsQuantity.put("Candy", 15);
 
-//        products.put("Cola", 100);
-//        products.put("Chips", 50);
-//        products.put("Candy", 65);
+        coinQuantity = new HashMap<>();
+        coinQuantity.put(25, 5);
+        coinQuantity.put(10, 10);
+        coinQuantity.put(5, 10);
     }
 
     public void acceptCoins(Integer coinInput) {
         if (coinInput == 1) {
             returnCoins += coinInput;
         }
-
         Integer[] coins = {5, 10, 25};
 
         for (Integer item: coins) {
             if (coinInput.equals(item)) {
                 currentAmount += item;
+                coinQuantity.put(item, coinQuantity.get(item) + 1);
             }
         }
     }
@@ -38,22 +48,33 @@ public class VendingMachine {
         String product = "";
 
         Integer price = products.get(item);
+        Integer quantity = productsQuantity.get(item);
 
-        if (currentAmount.equals(price)) {
-            if (products.containsKey(item)) {
-                product = item;
-                currentAmount -= price;
-                displayMessage = "THANK YOU";
-            }
-        } else if (currentAmount > price) {
-            if (products.containsKey(item)) {
-                product = item;
-                returnCoins += currentAmount - price;
-                currentAmount -= price;
-                displayMessage += "THANK YOU";
+        if (canMakeChange()) {
+            if (quantity > 0) {
+                if (currentAmount.equals(price)) {
+                    if (products.containsKey(item)) {
+                        product = item;
+                        currentAmount -= price;
+                        productsQuantity.put(item, productsQuantity.get(item) - 1);
+                        displayMessage = "THANK YOU";
+                    }
+                } else if (currentAmount > price) {
+                    if (products.containsKey(item)) {
+                        product = item;
+                        returnCoins += currentAmount - price;
+                        currentAmount -= price;
+                        productsQuantity.put(item, productsQuantity.get(item) - 1);
+                        displayMessage = "THANK YOU";
+                    }
+                } else {
+                    displayMessage = String.format("PRICE: %d", price);
+                }
+            } else {
+                displayMessage = "OUT OF STOCK";
             }
         } else {
-            displayMessage = String.format("PRICE: %d", price);
+            displayMessage = "EXACT CHANGE ONLY";
         }
         return product;
     }
@@ -64,6 +85,14 @@ public class VendingMachine {
     }
     public Integer returnCoins() {
         return returnCoins;
+    }
+
+    public boolean canMakeChange() {
+        boolean statement = false;
+        if (coinQuantity.get(10) > 1 && coinQuantity.get(5) > 1 || coinQuantity.get(5) > 3) {
+            statement = true;
+        }
+        return statement;
     }
 
     public String display() {

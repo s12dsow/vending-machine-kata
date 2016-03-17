@@ -94,13 +94,33 @@ public class VendingMachineTest {
     }
     @Test
     public void vendingMachineDisplaysSoldOutIfItemOutOfStock() {
-        for (int i = 0; i < 4; i++) {
+        vendingMachine.productsQuantity.put("Cola", 1);
+
+        for (int i = 0; i < 8; i++) {
             vendingMachine.acceptCoins(25);
         }
-        vendingMachine.selectProduct("cola");
-        vendingMachine.selectProduct("cola");
+        vendingMachine.selectProduct("Cola");
+        vendingMachine.selectProduct("Cola");
 
         assertEquals("OUT OF STOCK", vendingMachine.display());
         assertEquals(String.format("Current Amount: %d", vendingMachine.currentAmount), vendingMachine.display());
+    }
+    @Test
+    public void vendingMachineDisplaysExactChangeOnlyWhenCannotMakeChange() {
+        vendingMachine.coinQuantity.put(5, 1);
+
+        for (int i = 0; i < 3; i++) {
+            vendingMachine.acceptCoins(25);
+        }
+        vendingMachine.selectProduct("Candy");
+        vendingMachine.canMakeChange();
+
+        assertEquals("EXACT CHANGE ONLY", vendingMachine.display());
+    }
+    @Test
+    public void vendingMachineShouldUpdateAddingCoins() {
+        vendingMachine.acceptCoins(25);
+
+        assertEquals((Integer) 6, vendingMachine.coinQuantity.get(25));
     }
 }
