@@ -60,7 +60,7 @@ class TestVendingMachine(unittest.TestCase):
         self.assertEqual(self.vending_machine.display(), "INSERT COINS")
         self.assertEqual(self.vending_machine.current_amount(), 0)
 
-    def test_machine_displays_price_if_unsufficient_funds(self):
+    def test_machine_displays_price_if_insufficient_funds(self):
         """should display price of item if not enough funds have been received"""
         self.vending_machine.select_product("cola")
 
@@ -118,7 +118,7 @@ class TestVendingMachine(unittest.TestCase):
 
         self.assertEqual(self.vending_machine.display(), "EXACT CHANGE ONLY")
 
-    def test_machine_should_update_inventory_of_coins(self):
+    def test_machine_should_update_adding_of_coins(self):
         """update coin quantity"""
         self.vending_machine.accept_coins(25)
 

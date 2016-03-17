@@ -33,6 +33,7 @@ class VendingMachine:
                 self.display_message = "THANK YOU"
             elif self.amount > price:
                 self.coin_return += self.amount - price
+                self.amount -= price
                 self.products[product]['quantity'] -= 1
             else:
                 self.display_message = "PRICE: %d" % price
@@ -68,3 +69,9 @@ class VendingMachine:
             self.display_message = "INSERT COINS"
 
         return self.display_message
+
+
+# Need to subtract coin quantity
+# Coin Handling Class
+
+
