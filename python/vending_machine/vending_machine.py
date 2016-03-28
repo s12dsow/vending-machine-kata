@@ -10,6 +10,9 @@ class VendingMachine:
                        "dimes": {'value': 10, 'quantity': 10},
                        "nickels": {'value': 5, 'quantity': 10}}
 
+    def current_amount(self):
+        return self.amount
+
     def accept_coins(self, coin_input):
         if coin_input == 1:
             self.coin_return += coin_input
@@ -26,43 +29,54 @@ class VendingMachine:
         price = self.products[product]['price']
         quantity = self.products[product]['quantity']
 
-        if quantity:
-            if self.amount == price:
-                self.amount -= price
-                self.products[product]['quantity'] -= 1
-                self.display_message = "THANK YOU"
-            elif self.amount > price:
-                self.coin_return += self.amount - price
-                self.amount -= price
-                self.products[product]['quantity'] -= 1
+        if self.can_make_change():
+            if quantity:
+                if self.amount == price:
+                    self.amount -= price
+                    self.products[product]['quantity'] -= 1
+                    self.display_message = "THANK YOU"
+                elif self.amount > price:
+                    self.amount -= price
+                    self.products[product]['quantity'] -= 1
+                else:
+                    self.display_message = "PRICE: %d" % price
+                    return
+                return product
             else:
-                self.display_message = "PRICE: %d" % price
-                return
-            return product
+                self.display_message = "SOLD OUT"
         else:
-            self.display_message = "SOLD OUT"
+            self.display_message = "EXACT CHANGE ONLY"
+
+    def can_make_change(self):
+        return self.change['dimes'] > 1 and self.change['nickels'] > 1 \
+               or self.change['nickels'] > 3
 
     def refund_coins(self):
         self.coin_return += self.amount
         self.amount = 0
 
-    def return_coins(self):
-        if self.make_change():
-            return self.coin_return
+    def update_coin_inventory_when_refunding(self):
+        value = self.coin_return
 
-    def current_amount(self):
-        return self.amount
-
-    def make_change(self):
-        return self.change['dimes'] > 1 and self.change['nickels'] > 1 \
-               or self.change['nickels'] > 3
+        while value > 1:
+            if value >= 25:
+                if self.change['quarters']['quantity']:
+                    value -= 25
+                    self.change['quarters']['quantity'] -= 1
+            if 10 <= value < 25:
+                if self.change['dimes']['quantity']:
+                    value -= 10
+                    self.change['dimes']['quantity'] -= 1
+            if 5 <= value < 10:
+                if self.change['nickels']['quantity']:
+                    value -= 5
+                    self.change['dimes']['quantity'] -= 1
+        return self.coin_return
 
     def display(self):
         if self.display_message:
             msg, self.display_message = self.display_message, ""
             return msg
-        elif not self.make_change():
-            self.display_message = "EXACT CHANGE ONLY"
         elif self.amount:
             self.display_message = "Current Amount: %d" % self.amount
         else:
@@ -71,7 +85,20 @@ class VendingMachine:
         return self.display_message
 
 
-# Need to subtract coin quantity
-# Coin Handling Class
+class CoinDetector:
+    def __init__(self, weight, diameter, thickness):
+        self.weight = weight
+        self.diameter = diameter
+        self.thickness = thickness
+
+    def identify_coin(self):
+        if self.weight == 5.670 and self.diameter == 24.26 and self.thickness == 1.75:
+            return "quarter"
+        elif self.weight == 2.268 and self.diameter == 17.91 and self.thickness == 1.35:
+            return "dime"
+        elif self.weight == 5.000 and self.diameter == 21.21 and self.thickness == 1.95:
+            return "nickel"
+        else:
+            return "INVALID"
 
 

@@ -1,5 +1,5 @@
 import unittest
-from vending_machine.vending_machine import VendingMachine
+from vending_machine.vending_machine import VendingMachine, CoinDetector
 
 
 class TestVendingMachine(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestVendingMachine(unittest.TestCase):
         """should reject and put pennies in coin return"""
         self.vending_machine.accept_coins(1)
 
-        self.assertEqual(self.vending_machine.return_coins(), 1)
+        self.assertEqual(self.vending_machine.update_coin_inventory_when_refunding(), 1)
 
     def test_vending_machine_updates_display_when_valid_coin_accepted(self):
         """should update display when received valid coin"""
@@ -70,14 +70,17 @@ class TestVendingMachine(unittest.TestCase):
             self.vending_machine.accept_coins(25)
 
         self.assertEqual(self.vending_machine.select_product("chips"), "chips")
-        self.assertEqual(self.vending_machine.return_coins(), 50)
+
+        self.vending_machine.refund_coins()
+
+        self.assertEqual(self.vending_machine.update_coin_inventory_when_refunding(), 50)
 
     def test_return_coins(self):
         """should return all coins"""
         self.vending_machine.accept_coins(25)
         self.vending_machine.refund_coins()
 
-        self.assertEqual(self.vending_machine.return_coins(), 25)
+        self.assertEqual(self.vending_machine.update_coin_inventory_when_refunding(), 25)
         self.assertEqual(self.vending_machine.display(), "INSERT COINS")
 
     def test_machine_displays_sold_out_if_item_is_out_of_stock(self):
@@ -101,7 +104,6 @@ class TestVendingMachine(unittest.TestCase):
             self.vending_machine.accept_coins(25)
 
         self.vending_machine.select_product("candy")
-        self.vending_machine.make_change()
 
         self.assertEqual(self.vending_machine.display(), "EXACT CHANGE ONLY")
 
@@ -110,6 +112,51 @@ class TestVendingMachine(unittest.TestCase):
         self.vending_machine.accept_coins(25)
 
         self.assertEqual(self.vending_machine.change['quarters']['quantity'], 6)
+
+    def test_machine_should_update_deleting_of_coins(self):
+        """update coin quantity"""
+
+        for i in range(2):
+            self.vending_machine.accept_coins(25)
+            self.vending_machine.accept_coins(10)
+
+        self.vending_machine.accept_coins(5)
+
+        self.vending_machine.select_product("candy")
+
+        self.assertEqual(self.vending_machine.change['quarters']['quantity'], 7)
+        self.assertEqual(self.vending_machine.change['dimes']['quantity'], 12)
+        self.assertEqual(self.vending_machine.change['nickels']['quantity'], 11)
+
+        self.vending_machine.refund_coins()
+        self.vending_machine.update_coin_inventory_when_refunding()
+
+        self.assertEqual(self.vending_machine.change['quarters']['quantity'], 7)
+        self.assertEqual(self.vending_machine.change['dimes']['quantity'], 11)
+        self.assertEqual(self.vending_machine.change['nickels']['quantity'], 11)
+
+
+class TestCoinDetector(unittest.TestCase):
+    """Tests for coin detector"""
+    def test_coin_detector_should_identify_a_quarter(self):
+        self.coin_detector = CoinDetector(5.670, 24.26, 1.75)
+
+        self.assertEqual(self.coin_detector.identify_coin(), "quarter")
+
+    def test_coin_detector_should_identify_a_dime(self):
+        self.coin_detector = CoinDetector(2.268, 17.91, 1.35)
+
+        self.assertEqual(self.coin_detector.identify_coin(), "dime")
+
+    def test_coin_detector_should_identify_a_nickel(self):
+        self.coin_detector = CoinDetector(5.000, 21.21, 1.95)
+
+        self.assertEqual(self.coin_detector.identify_coin(), "nickel")
+
+    def test_returns_invalid_for_invalid_coins(self):
+        self.coin_detector = CoinDetector(2.500, 19.05, 1.52)
+
+        self.assertEqual(self.coin_detector.identify_coin(), "INVALID")
 
 if __name__ == '__main__':
     unittest.main()
