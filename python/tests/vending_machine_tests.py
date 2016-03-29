@@ -1,5 +1,5 @@
 import unittest
-from vending_machine.vending_machine import VendingMachine, CoinDetector
+from vending_machine.vending_machine import VendingMachine, CoinDetector, Coin
 
 
 class TestVendingMachine(unittest.TestCase):
@@ -7,23 +7,32 @@ class TestVendingMachine(unittest.TestCase):
     def setUp(self):
         self.vending_machine = VendingMachine()
 
-    def test_vending_machine_accepts_quarters(self):
-        """should accept valid coins"""
-        self.vending_machine.accept_coins(25)
+        global quarter
+        quarter = Coin(5.670, 24.26, 1.75)
 
-        self.assertEqual(self.vending_machine.current_amount(), 25)
+        global dime
+        dime = Coin(2.268, 17.91, 1.35)
+
+        global nickel
+        nickel = Coin(5.000, 21.21, 1.95)
+
+    def test_vending_machine_insert_quarters(self):
+        """should accept valid coins"""
+        self.vending_machine.insert_coin(quarter)
+
+        self.assertEqual(self.vending_machine.display(), "Current Amount: 25")
 
     def test_vending_machine_accepts_dimes(self):
         """should accept valid coins"""
-        self.vending_machine.accept_coins(10)
+        self.vending_machine.insert_coin(dime)
 
-        self.assertEqual(self.vending_machine.current_amount(), 10)
+        self.assertEqual(self.vending_machine.display(), "Current Amount: 10")
 
     def test_vending_machine_accepts_nickels(self):
         """should accept valid coins"""
-        self.vending_machine.accept_coins(5)
+        self.vending_machine.insert_coin(nickel)
 
-        self.assertEqual(self.vending_machine.current_amount(), 5)
+        self.assertEqual(self.vending_machine.display(), "Current Amount: 5")
 
     def test_vending_machine_rejects_pennies_and_returns_them(self):
         """should reject and put pennies in coin return"""
