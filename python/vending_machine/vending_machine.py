@@ -1,63 +1,48 @@
 class VendingMachine:
-    def __init__(self):
+    def __init__(self, products=None):
         self.amount = 0
         self.coin_return = 0
         self.display_message = ""
-        self.products = {"cola": {'price': 100, 'quantity': 5},
-                         "chips": {'price': 50, 'quantity': 10},
-                         "candy": {'price': 65, 'quantity': 10}}
-        self.change = {"quarter": {'value': 25, 'quantity': 5},
-                       "dime": {'value': 10, 'quantity': 10},
-                       "nickel": {'value': 5, 'quantity': 10}}
+        if not products:
+            products = [Product("cola", 100, 1), Product("chips", 50, 5), Product("candy", 65, 7)]
+        self.products = products
+        self.coin_detector = CoinDetector([Coin(5.670, 24.26, 1.75, 25),
+                                           Coin(2.268, 17.91, 1.35, 10),
+                                           Coin(5.000, 21.21, 1.95, 5)])
 
     def current_amount(self):
         return self.amount
 
-    # def insert_coin(self, coin_input):
-    #     if coin_input == 1:
-    #         self.coin_return += coin_input
-    #     else:
-    #         converter = {25: "quarters", 10: "dimes", 5: "nickels"}
-    #         coin = converter[coin_input]
-    #         coin_value = self.change[coin]['value']
-    #
-    #         if coin_input == coin_value:
-    #             self.amount += coin_input
-    #             self.change[coin]['quantity'] += 1
-
-    def insert_coin(self, coin_input):
-        converter = {"quarter": 25, "dime": 10, "nickel": 5}
-
-        if CoinDetector(coin_input).identify_coin() in converter:
-            coin = CoinDetector(coin_input).identify_coin()
-
-            self.amount += converter[coin]
-            self.change[coin]['quantity'] += 1
-        # else:
-        #     self.coin_return += coin_input
-
+    def insert_coin(self, coin_value):
+        for coin in self.coin_detector.valid_coins:
+            if coin_value == coin.value:
+                self.amount += coin_value
+                break
+        else:
+            self.coin_return += coin_value
 
     def select_product(self, product):
-        price = self.products[product]['price']
-        quantity = self.products[product]['quantity']
-
-        if self.can_make_change():
-            if quantity:
-                if self.amount == price:
-                    self.amount -= price
-                    self.products[product]['quantity'] -= 1
-                    self.display_message = "THANK YOU"
-                elif self.amount > price:
-                    self.amount -= price
-                    self.products[product]['quantity'] -= 1
+        for item in self.products:
+            if item.name == product:
+                if item.quantity > 0:
+                    if self.amount >= item.price:
+                        self.amount -= item.price
+                        self.coin_return += self.amount
+                        item.quantity -= 1
+                        self.display_message = "THANK YOU"
+                        return item.name
+                    else:
+                        self.display_message = "PRICE: %d" % item.price
                 else:
-                    self.display_message = "PRICE: %d" % price
-                    return
-                return product
-            else:
-                self.display_message = "SOLD OUT"
-        else:
-            self.display_message = "EXACT CHANGE ONLY"
+                    self.display_message = "SOLD OUT"
+
+    def return_coins(self):
+        value = self.amount
+        self.amount = 0
+
+        return CoinReturn([Coin(5.670, 24.26, 1.75, 25),
+                           Coin(2.268, 17.91, 1.35, 10),
+                           Coin(5.000, 21.21, 1.95, 5)]).return_coins(value)
 
     def can_make_change(self):
         return self.change['dimes'] > 1 and self.change['nickels'] > 1 \
@@ -98,24 +83,49 @@ class VendingMachine:
 
 
 class Coin:
-    def __init__(self, weight, diameter, thickness):
+    def __init__(self, weight, diameter, thickness, value=None):
         self.weight = weight
         self.diameter = diameter
         self.thickness = thickness
+        self.value = value
+
+    def __repr__(self):
+        return "<Coin:%s>" % self.value
+
+    def __eq__(self, other):
+        return self.weight == other.weight and self.diameter == other.diameter and self.thickness == other.thickness
 
 
-class CoinDetector:
-    def __init__(self, coin):
-        self.coin = coin
+class CoinDetector(object):
+    def __init__(self, valid_coins=[]):
+        self.valid_coins = valid_coins
 
-    def identify_coin(self):
-        if self.coin.weight == 5.670 and self.coin.diameter == 24.26 and self.coin.thickness == 1.75:
-            return "quarter"
-        elif self.coin.weight == 2.268 and self.coin.diameter == 17.91 and self.coin.thickness == 1.35:
-            return "dime"
-        elif self.coin.weight == 5.000 and self.coin.diameter == 21.21 and self.coin.thickness == 1.95:
-            return "nickel"
+    def identify_coin(self, coin):
+        for valid_coin in self.valid_coins:
+            if coin == valid_coin:
+                value = valid_coin.value
+                break
         else:
-            return "INVALID"
+            value = 0
+        return value
 
 
+class CoinReturn(CoinDetector):
+    def __init__(self, valid_coins=[]):
+        super(CoinReturn, self).__init__(valid_coins)
+
+    def return_coins(self, value):
+        return_coins = []
+        while value > 0:
+            for valid_coin in self.valid_coins:
+                while valid_coin.value <= value:
+                    return_coins.append(valid_coin)
+                    value -= valid_coin.value
+        return return_coins
+
+
+class Product:
+    def __init__(self, name, price, quantity):
+        self.name = name
+        self.price = price
+        self.quantity = quantity
